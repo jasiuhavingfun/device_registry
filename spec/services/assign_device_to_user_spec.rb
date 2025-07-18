@@ -38,7 +38,13 @@ RSpec.describe AssignDeviceToUser do
       end
 
       it 'does not allow to register' do
-        expect { assign_device }.to raise_error(AssigningError::AlreadyUsedOnUser)
+        expect { 
+          described_class.new(
+            requesting_user: user,
+            serial_number: serial_number,
+            new_device_owner_id: new_device_owner_id
+          ).call
+        }.to raise_error(AssigningError::AlreadyUsedOnUser)
       end
     end
 
