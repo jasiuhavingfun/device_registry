@@ -2,12 +2,14 @@
 
 class ReturnDeviceFromUser
   def initialize(user:, serial_number:, from_user:)
-    @user = user
+    @requesting_user = user
     @serial_number = serial_number
-    @from_user = from_user
+    @from_user_id = from_user
   end
 
   def call
+    validate_authorization!
+    
     device = Device.find_by(serial_number: serial_number)
     return unless device
 
@@ -15,7 +17,7 @@ class ReturnDeviceFromUser
       device.update!(user_id: nil)
       
       assignment = DeviceAssignment.active.find_by(
-        user_id: from_user,
+        user_id: from_user_id,
         device: device,
         serial_number: serial_number
       )
@@ -26,5 +28,12 @@ class ReturnDeviceFromUser
 
   private
 
-  attr_reader :user, :serial_number, :from_user
+  attr_reader :requesting_user, :serial_number, :from_user_id
+
+  def validate_authorization!
+    # Only the user who assigned the device can return it
+    unless requesting_user.id == from_user_id
+      raise RegistrationError::Unauthorized
+    end
+  end
 end
