@@ -18,7 +18,8 @@ RSpec.describe DevicesController, type: :controller do
         let(:new_owner_id) { create(:user).id }
 
         it 'returns an unauthorized response' do
-          expect(response.code).to eq(422)
+          assign
+          expect(response.code).to eq('422')
           expect(JSON.parse(response.body)).to eq({ 'error' => 'Unauthorized' })
         end
       end
